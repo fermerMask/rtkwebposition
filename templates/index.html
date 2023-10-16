@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+<title>RTK-GNSS</title>
+<script src="static/js/axios.min.js"></script>
+<script src="static/js/canvasjs.min.js"></script>
+<script src=""></script>
+<script>
+
+window.onload = function () {
+
+   var lats = [];
+   var lons = [];
+   var xs = [];
+   var ys = [];
+   var quals = [];
+   var alts = [];
+   var vels = [];
+      
+   var chart_lat = new CanvasJS.Chart("chart_lat", 
+   { title : { text : "Latitude" }, data : [{ type : "line", dataPoints : lats }] });
+   var chart_lon = new CanvasJS.Chart("chart_lon", 
+   { title : { text : "Longitude" }, data : [{ type : "line", dataPoints : lons }] });
+   var chart_qual = new CanvasJS.Chart("chart_qual", 
+   { title : { text : "Quality" }, data : [{ type : "line", dataPoints : quals }], axisY : { minimum : 0, maximum : 6 } });
+   var chart_x = new CanvasJS.Chart("chart_x", 
+   { title : { text : "X" }, data : [{ type : "line", dataPoints : xs }] });
+   var chart_y = new CanvasJS.Chart("chart_y", 
+               { title : { text : "Y" }, data : [{ type : "line", dataPoints : ys }] });
+   var chart_alt = new CanvasJS.Chart("chart_alt",
+               {title : { text :"Alt"}, data : [{ type : "line", dataPoints : alts }] });
+   var chart_vel = new CanvasJS.Chart("chart_vel",
+               {title : {text : "Vel"}, data : [{type : "line",dataPoints : vels }] });
+
+               
+
+   var updateInterval = 200;
+   var dataLength = 100;
+
+   var updateChart = function() {
+   axios.get("/api/data")
+   .then((res) => {
+      t = res.data.t;
+      lat = res.data.lat;
+      lon = res.data.lon;
+      qual = res.data.qual;
+      x = res.data.x;
+      y = res.data.y;
+      alt = res.data.alt;
+
+      lats.push({ x: t, y: lat });
+      lons.push({ x: t, y: lon });
+      quals.push({ x: t, y: qual });
+      xs.push({ x: t, y: x });
+      ys.push({ x: t, y: y });
+      alts.push({ x: t, y : alt});
+
+      if(lats.length > dataLength) { lats.shift(); lons.shift(); quals.shift(); xs.shift(); ys.shift(); }
+      chart_lat.render();
+      chart_lon.render();
+      chart_qual.render();
+      chart_x.render();
+      chart_y.render();
+      chart_alt.render();
+   });
+   }
+
+   updateChart();
+   setInterval(function(){updateChart()}, updateInterval);
+
+   input_lat_min.addEventListener('change', function() { 
+   if(input_lat_max.value == "") {
+      chart_lat.set("axisY", { minimum : input_lat_min.value });
+   } else {
+      chart_lat.set("axisY", { minimum : input_lat_min.value, maximum : input_lat_max.value });
+   }
+   });
+
+   input_lat_max.addEventListener('change', function() { 
+   if(input_lat_min.value == "") {
+      chart_lat.set("axisY", { maximum : input_lat_max.value });
+   } else {
+      chart_lat.set("axisY", { maximum : input_lat_max.value, minimum : input_lat_min.value });
+   }
+   });
+
+   input_lon_min.addEventListener('change', function() { 
+   if(input_lon_max.value == "") {
+      chart_lon.set("axisY", { minimum : input_lon_min.value });
+   } else {
+      chart_lon.set("axisY", { minimum : input_lon_min.value, maximum : input_lon_max.value });
+   }
+   });
+
+   input_lon_max.addEventListener('change', function() { 
+   if(input_lon_min.value == "") {
+      chart_lon.set("axisY", { maximum : input_lon_max.value });
+   } else {
+      chart_lon.set("axisY", { maximum : input_lon_max.value, minimum : input_lon_min.value });
+   }
+   });
+
+   input_x_min.addEventListener('change', function() { 
+   if(input_x_max.value == "") {
+      chart_x.set("axisY", { minimum : input_x_min.value });
+   } else {
+      chart_x.set("axisY", { minimum : input_x_min.value, maximum : input_x_max.value });
+   }
+   });
+
+   input_x_max.addEventListener('change', function() { 
+   if(input_x_min.value == "") {
+      chart_x.set("axisY", { maximum : input_x_max.value });
+   } else {
+      chart_x.set("axisY", { maximum : input_x_max.value, minimum : input_x_min.value });
+   }
+   });
+
+   input_y_min.addEventListener('change', function() { 
+   if(input_y_max.value == "") {
+      chart_y.set("axisY", { minimum : input_y_min.value });
+   } else {
+      chart_y.set("axisY", { minimum : input_y_min.value, maximum : input_y_max.value });
+   }
+   });
+
+   input_y_max.addEventListener('change', function() { 
+   if(input_y_min.value == "") {
+      chart_y.set("axisY", { maximum : input_y_max.value });
+   } else {
+      chart_y.set("axisY", { maximum : input_y_max.value, minimum : input_y_min.value });
+   }
+   });
+
+   input_alt_min.addEventListener('change', function() { 
+   if(input_alt_max.value == "") {
+      chart_alt.set("axisY", { minimum : input_alt_min.value });
+   } else {
+      chart_alt.set("axisY", { minimum : input_alt_min.value, maximum : input_alt_max.value });
+   }
+   });
+
+   input_alt_max.addEventListener('change', function() { 
+   if(input_alt_min.value == "") {
+      chart_alt.set("axisY", { maximum : input_alt_max.value });
+   } else {
+      chart_alt.set("axisY", { maximum : input_alt_max.value, minimum : input_alt_min.value });
+   }
+   });
+
+}
+
+</script>
+</head>
+<body>
+Lat: <input id="lat_min"> - <input id="lat_max">
+<div id="chart_lat" style="height:300px; width:100%;"></div>
+Lon: <input id="lon_min"> - <input id="lon_max">
+<div id="chart_lon" style="height:300px; width:100%;"></div>
+X: <input id="x_min"> - <input id="x_max">
+<div id="chart_x" style="height:300px; width:100%;"></div>
+Y: <input id="y_min"> - <input id="y_max">
+<div id="chart_y" style="height:300px; width:100%;"></div>
+Alt: <input id="alt_min"> - <input id="alt_max">
+<div id="chart_alt" style="height: 300px; width: 100%;"></div>
+<hr>
+<div id="chart_qual" style="height:150px; width:100%;"></div>
+
+<script>
+var input_lat_min = document.getElementById("lat_min");
+var input_lat_max = document.getElementById("lat_max");
+var input_lon_min = document.getElementById("lon_min");
+var input_lon_max = document.getElementById("lon_max");
+var input_x_min = document.getElementById("x_min");
+var input_x_max = document.getElementById("x_max");
+var input_y_min = document.getElementById("y_min");
+var input_y_max = document.getElementById("y_max");
+var input_alt_max = document.getElementById("alt_max");
+var input_alt_min = document.getElementById("alt_min");
+</script>
+
+</body>
+</html>

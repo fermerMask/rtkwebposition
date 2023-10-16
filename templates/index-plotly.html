@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<title>RTK-GNSS</title> 
+<script src="static/js/jquery-1.12.4.min.js"></script>
+<script src="static/js/plotly-2.4.2.min.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script src="static/js/canvasjs.min.js"></script>
+<script type="text/javascript">
+window.onload = () => {
+  scatter();
+};
+
+let scatter = () => {
+  const mygraph = document.getElementById('mygraph');
+  axios.get("/api/data")
+  .then((res) => {
+    Plotly.newPlot(mygraph, 
+      [{ x: res.data.x, y: res.data.y, mode: 'markers', type: 'scatter' }], { margin: { t: 0 } });
+  });
+}
+</script>
+</head>
+
+<body>
+<h1>RTK-GNSS</h1>
+<div id="mygraph"></div>
+</body>
+</html>
