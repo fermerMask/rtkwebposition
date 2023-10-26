@@ -1,0 +1,8 @@
+/.idea
+/Include
+/Lib
+/Scripts
+/venv
+pyvenv.cfg
+README.md
+
